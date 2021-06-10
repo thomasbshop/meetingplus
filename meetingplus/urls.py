@@ -17,13 +17,12 @@ from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
-# from agenda.views import Home
 # from minutes.views import Home
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    # path('', Home.as_view(), name='home'),
-    # path('agenda/', include('agenda.urls'))
+    path('admin/', admin.site.urls),          # Django admin route
+    path("", include("authentication.urls")), # Auth routes - login / register
+    path("", include('core.urls'))
 ]
 
 #Add URL maps to redirect the base URL to our application
@@ -34,9 +33,7 @@ urlpatterns = [
 
 # Use static() to add url mapping to serve static files during development (only)
 # from django.conf import settings
-# from django.conf.urls.static import static
 
-# urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 from django.conf.urls.static import static
 from core import views as core_views
 # urlpatterns = i18n_patterns(
