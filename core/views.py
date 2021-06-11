@@ -1,11 +1,23 @@
-from django.shortcuts import render
-
-# Create your views here.
 import json
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from django.http import HttpResponse
-from django.template import Template, Context
+from django.template import Template, Context, loader
 from django.views.decorators.cache import cache_page
 from django.conf import settings
+
+@login_required(login_url="/login/")
+def dashboard(request):
+    context = {}
+    context['segment'] = 'index'
+
+    html_template = loader.get_template( 'index.html' )
+    return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+def minutes(request):
+    context = {'minutes': 'minutes page.'}
+    return render(request, 'minutes.html', context)
 
 JS_SETTINGS_TEMPLATE = """
     window.settings = JSON.parse('{{ json_data|escapejs }}');

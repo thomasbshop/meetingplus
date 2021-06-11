@@ -22,7 +22,8 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),          # Django admin route
     path("", include("authentication.urls")), # Auth routes - login / register
-    path("", include('core.urls'))
+    path("", include('core.urls')),
+    path("meeting/", include('core.urls')),
 ]
 
 #Add URL maps to redirect the base URL to our application
