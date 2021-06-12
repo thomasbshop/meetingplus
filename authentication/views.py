@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.forms.utils import ErrorList
-from django.http import HttpResponse
+from django.http import HttpResponse, request
 from .forms import LoginForm, SignUpForm
 
 def login_view(request):
@@ -55,3 +55,22 @@ def register_user(request):
         form = SignUpForm()
 
     return render(request, "accounts/register.html", {"form": form, "msg" : msg, "success" : success })
+
+def account_view(request, *args, **kwargs):
+    """
+    View user profile page.
+    """
+    context = {}
+    current_user = request.user
+    user_id = kwargs.get("user_id")
+    try:
+    	account = User.objects.get(pk=current_user.id)
+    except:
+    	return HttpResponse("Something went wrong.")
+
+    user = request.user
+    if user.is_authenticated and user == account:
+    	context['id'] = account.id
+    	context['username'] = account.username
+    	context['email'] = account.email
+    	return render(request, "page-user.html", context)
