@@ -84,6 +84,8 @@ DATABASES = {
     }
 }
 
+# Default user model
+AUTH_USER_MODEL = 'account.Account'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -122,12 +124,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+
+STATIC_ROOT = ''
+MEDIA_ROOT = ''
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'meetingplus/static'),
+    os.path.join(BASE_DIR, 'meetingplus/media'),
 )
-print(STATICFILES_DIRS)
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
