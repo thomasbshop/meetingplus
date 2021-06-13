@@ -25,12 +25,14 @@ SECRET_KEY = 'django-insecure-_#luv^a^w317ow86h)43j*k4-i5um^0wxplsr5y+#of5g*gsbp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    'meeting_room',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # apps
-    'agenda',
     'minutes',
     'core',
 ]
@@ -71,8 +72,17 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'meetingplus.wsgi.application'
-
+# WSGI_APPLICATION = 'meetingplus.wsgi.application'
+# asynchronous service getway interface - channels
+ASGI_APPLICATION = 'meetingplus.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -85,7 +95,7 @@ DATABASES = {
 }
 
 # Default user model
-AUTH_USER_MODEL = 'account.Account'
+# AUTH_USER_MODEL = 'account.Account'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
