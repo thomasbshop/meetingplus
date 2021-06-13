@@ -21,9 +21,10 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),          # Django admin route
-    path("", include("authentication.urls")), # Auth routes - login / register
+    path("accounts/", include("authentication.urls")), # Auth routes - login / register
     path("", include('core.urls')),
-    path("meeting/", include('core.urls')),
+    # path("meeting/", include('core.urls')),
+    path("meeting/", include('meeting_room.urls')),
 ]
 
 #Add URL maps to redirect the base URL to our application
@@ -33,7 +34,6 @@ urlpatterns = [
 # ]
 
 # Use static() to add url mapping to serve static files during development (only)
-# from django.conf import settings
 
 from django.conf.urls.static import static
 from core import views as core_views
@@ -42,5 +42,6 @@ from core import views as core_views
 #     path("js-settings/", core_views.js_settings,
 #     name="js_settings"),
 # )
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static("/media/", document_root=settings.MEDIA_ROOT)
+# if settings.DEBUG:
+#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+#     urlpatterns += static("/media/", document_root=settings.MEDIA_ROOT)
