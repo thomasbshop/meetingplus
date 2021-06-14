@@ -24,7 +24,8 @@ urlpatterns = [
     path("accounts/", include("authentication.urls")), # Auth routes - login / register
     path("", include('core.urls')),
     # path("meeting/", include('core.urls')),
-    path("meeting/", include('meeting_room.urls')),
+    path("meeting/", include('meeting_room.urls', namespace='room')),
+    path("meeting/", include('document.urls')),
 ]
 
 #Add URL maps to redirect the base URL to our application
@@ -42,6 +43,6 @@ from core import views as core_views
 #     path("js-settings/", core_views.js_settings,
 #     name="js_settings"),
 # )
-# if settings.DEBUG:
-#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-#     urlpatterns += static("/media/", document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

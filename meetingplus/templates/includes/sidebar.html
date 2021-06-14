@@ -28,10 +28,18 @@
             </a>
           </li>
           <li class="nav-item {% if 'ui-typography' in segment %} active {% endif %}">
-            <a class="nav-link" href="/ui-typography.html">
+            <a class="nav-link" href="{% url 'minutes' %}">
               <i class="material-icons">library_books</i>
-              <p>Typography</p>
+              <p>Document</p>
             </a>
+          </li>
+          <li class="nav-item {% if 'ui-typography' in segment %} active {% endif %}">
+            <i class="fas fa-download"></i>
+            <a type="button"
+            id="openUploadDocumentModalButton"
+            class="btn btn-outline-primary">
+              Upload Document
+          </a>
           </li>
           <li class="nav-item {% if 'ui-icons' in segment %} active {% endif %}">
             <a class="nav-link" href="/agenda.html">
@@ -69,9 +77,9 @@
           <li class="nav-item active-pro ">
             <a class="nav-link" 
                target="_blank" rel="noopener noreferrer"  
-               href="https://appseed.us/admin-dashboards/django-dashboard-material-pro">
+               href="">
               <i class="material-icons">unarchive</i>
-              <p>PRO Version</p>
+              <p>MEETING PLUS</p>
             </a>
           </li>
 
@@ -80,9 +88,9 @@
           <li class="nav-item active">
             <a class="nav-link" 
                target="_blank" rel="noopener noreferrer"  
-               href="https://appseed.us/admin-dashboards/django-dashboard-material-pro">
+               href="">
               <i class="material-icons">unarchive</i>
-              <p>PRO Version</p>
+              <p>MEETING PLUS</p>
             </a>
           </li>          
 

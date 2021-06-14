@@ -1,0 +1,10 @@
+<form method="post"
+  id="uploadDocumentForm">
+  {% csrf_token %}
+  {{ form.as_table }}
+  <div class="form-submit-row">
+    <button type="submit" class="btn btn-primary">
+       Submit
+    </button>
+  </div>
+</form>

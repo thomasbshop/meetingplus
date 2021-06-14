@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # apps
-    'minutes',
+    'document',
     'core',
 ]
 
@@ -137,7 +137,7 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 STATIC_ROOT = ''
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # media directory in the root directory
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
