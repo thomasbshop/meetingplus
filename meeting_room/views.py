@@ -8,12 +8,12 @@ from document.forms import DocumentChatForm
 
 @login_required
 def meeting_chat_room(request, meeting_id):
-    try:
-        # retrieve meeting with given id joined by the current user
-        meeting = request.user.meetings_added.get(id=meeting_id)
-    except:
-        # user is not invited to the meeting or meeting does not exist
-        return HttpResponseForbidden(f"403: Not allowed here.")
+    # try:
+    #     # retrieve meeting with given id joined by the current user
+    #     meeting = request.user.meetings_added.get(id=meeting_id)
+    # except:
+    #     # user is not invited to the meeting or meeting does not exist
+    #     return HttpResponseForbidden(f"403: Not allowed here.")
     
     return render(request, 'meeting/chat_room.html', {'meeting_id': meeting_id})
 
@@ -22,25 +22,23 @@ def room(request, room_name):
         'room_name': room_name
     })
 
-def upload_form(request):
-    template_name = "meeting/upload_document.html"
-    form=DocumentChatForm()
-    return render(request, template_name, {'form': form})
-
 def upload_file(request):
-    if request.is_ajax:
-        template_name = "meeting/upload_document.html"
+    print(request.method)
     if request.method == "POST":
         form = DocumentChatForm(request.POST, request.FILES)
+        print(form.is_valid())
         if form.is_valid():
             form.save()
+            # return print('saved')
             return HttpResponse( "uploaded", content_type="application/json")
         else:
+            print('not saved')
             return HttpResponse(json.dumps({"nothing to see": "this isn't happening"}),
                                 content_type="application/json" )
     else:
+        print("no success")
         form=DocumentChatForm()
-    return(request, template_name, {'form': form})
+    return render(request, "meeting/upload_document.html", {'form': form})
 
 
         # print(form_data)
