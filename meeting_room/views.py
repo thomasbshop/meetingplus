@@ -13,19 +13,18 @@ from .models import MeetingChatRoom
 @login_required()
 def room(request, meeting_id=1):
     meeting_documents = MeetingChatRoom(pk=meeting_id).documents.all()
-    print('kkkkkkkkkkkkkkkkkkkkkkkkk', meeting_documents)
     if meeting_documents:
-        print('kkkkkkkkkkkkkkkkkkkkkkkkk', meeting_documents)
         # retrieve meeting with given id joined by the current user
         # check if meeting has document
         document_path = f'{MEDIA_URL}{meeting_documents[0].file}'
         context = {
             'meeting': meeting_id, 
-            'document_id': meeting_documents[0],
-            'document_path': document_path
+            'document_id': meeting_documents[0].id,
+            'document_path': document_path,
+            'meeting_documents': meeting_documents
             }
         return render(request, 'meeting/document.html', context)
-    context = {'meeting': meeting_id,}
+    context = {'meeting': meeting_id, 'meeting_documents': meeting_documents}
     return render(request, 'minutes.html', context)
 
 @login_required

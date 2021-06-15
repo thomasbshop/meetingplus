@@ -62,7 +62,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		"""
 		# Messages will have a "command" key we can switch on
 		command = content.get("command", None)
-		print(f'MeetingChatConsumer: receive_json: { content["documentId"] }')
+		print(f'MeetingChatConsumer: receive_json: { content }')
 		try:
 			if command == "send":
 				if len(content["xfdfString"].lstrip()) != 0:
@@ -70,13 +70,13 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 					# raise ClientError(422,"You can't send an empty message.")
 			elif command == "join":
 				# Make them join the meeting
-				await self.join_room(content["room"])
+				await self.join_room(content["documentId"])
 			elif command == "leave":
 				# Leave the room
 				await self.leave_room(content["room"])
 			elif command == "get_room_chat_messages":
 				await self.display_progress_bar(True)
-				room = await get_room_or_error(content['document_id'])
+				room = await get_room_or_error(content['documentId'])
 				payload = await get_room_chat_messages(room, content['page_number'])
 				if payload != None:
 					payload = json.loads(payload)
@@ -96,9 +96,9 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		print(f'MeetingChatConsumer: send_room {self.document_id }')
 		if self.document_id != None:
 			if str(document_id) != str(self.document_id):
-				raise ClientError("ROOM_ACCESS_DENIED", "Room access denied")
+				raise ClientError("ROOM_ACCESS_DENIED", "Document access denied")
 			if not is_authenticated(self.scope["user"]):
-				raise ClientError("AUTH_ERROR", "You must be authenticated to chat.")
+				raise ClientError("AUTH_ERROR", "You must be authenticated to annotate.")
 		else:
 			raise ClientError("ROOM_ACCESS_DENIED", "Room access denied")
 
@@ -266,8 +266,8 @@ def is_authenticated(user):
 
 @database_sync_to_async
 def get_num_connected_users(room):
-	if room.users:
-		return len(room.users.all())
+	# if room.users:
+	# 	return len(room.users.all())
 	return 0
 
 @database_sync_to_async
@@ -276,11 +276,24 @@ def create_meeting_room_chat_message(document, user, message):
 
 @database_sync_to_async
 def connect_user(room, user):
-    return room.connect_user(user)
+    # return room.connect_user(user)
+	return
 
 @database_sync_to_async
 def disconnect_user(room, user):
-    return room.disconnect_user(user)
+    # return room.disconnect_user(user)
+	return
+
+@database_sync_to_async
+def get_document_or_error(document_id):
+	"""
+	Tries to fetch a document for the user
+	"""
+	try:
+		document = DocumentChat.objects.get(pk=document_id)
+	except DocumentChat.DoesNotExist:
+		raise ClientError("ROOM_INVALID", "Invalid room.")
+	return document
 
 @database_sync_to_async
 def get_room_or_error(document_id):
@@ -288,12 +301,10 @@ def get_room_or_error(document_id):
 	Tries to fetch a document for the user
 	"""
 	try:
-		print(document_id, '333333333333333333333333333333333333333333333333333333333333333')
 		document = DocumentChat.objects.get(pk=document_id)
 	except DocumentChat.DoesNotExist:
 		raise ClientError("ROOM_INVALID", "Invalid room.")
 	return document
-
 
 @database_sync_to_async
 def get_room_chat_messages(room, page_number):

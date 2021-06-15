@@ -1,21 +1,4 @@
-{% extends "layouts/base.html" %}
-
-{% block title %} Dashboard {% endblock %} 
-
-<!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
-
-{% block content %}
-    <div class='row'>
-        {{meeting_id}}
-    <div id='viewer' style='width: 100%; height: 1000px'></div>
-    </div>
-{% endblock content %}
-
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}  
-<script type="text/javascript">
-     function showDocumentFunction(documentId){
+function showDocumentFunction(documentId){
     const viewerElement = document.getElementById('viewer');
     // var documentId = 15;
     let annotManager = null;
@@ -142,6 +125,3 @@
         }
     }
 }
-
-</script>
-{% endblock javascripts %}

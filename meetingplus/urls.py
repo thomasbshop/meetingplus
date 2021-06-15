@@ -24,8 +24,8 @@ urlpatterns = [
     path("accounts/", include("authentication.urls")), # Auth routes - login / register
     # path("", include('core.urls')),
     path("meeting/", include('core.urls')),
-    path("meeting/", include('meeting_room.urls', namespace='room')),
-    path("", include('document.urls')),
+    path("", include('meeting_room.urls', namespace='room')),
+    path("meeting/", include('document.urls')),
 ]
 
 #Add URL maps to redirect the base URL to our application

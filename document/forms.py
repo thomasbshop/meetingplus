@@ -1,7 +1,8 @@
-from django.forms import ModelForm
+from django import forms
 from document.models import DocumentChat
 
-class DocumentChatForm(ModelForm):
+class DocumentChatForm(forms.ModelForm):
+    meeting_id = forms.IntegerField()
     class Meta:
         model = DocumentChat
         fields = ('name', 'file')

@@ -7,49 +7,48 @@
       </div>
       <div class="sidebar-wrapper">
         <ul class="nav">
-        {% if request.user.is_authenticated %}
+        {% if request.user.is_authenticated %} 
+        <li class="nav-item {% if 'ui-typography' in segment %} active {% endif %}">
+          <i class="fas fa-download"></i>
+          <a type="button" id="openUploadDocumentModalButton" class="btn btn-outline-primary">
+            Upload Document
+          </a>
+        </li>
 
+        <li class="nav-item {% if 'ui-typography' in segment %} active {% endif %}">
+          <div class="nav-link" id="showDocumentButton">
+            <i class="material-icons">library_books</i>
+            <p>Documents</p>
+          </div>
+          {% if meeting_documents %}
+          <ol>
+            {% for document in meeting_documents %}
+              <li>
+                <a onclick="showDocumentFunction('{{document.id}}')">
+                  {{document.name}}
+                </a>
+              </li>
+            {% endfor %}
+          </ol>
+          {% else %}
+            <p>There are no documents.</p>
+          {% endif %}
+        </li>
+        <li class="nav-item {% if 'ui-icons' in segment %} active {% endif %}">
+          <a class="nav-link" href="/agenda.html">
+            <i class="material-icons">bubble_chart</i>
+            <p>Agenda</p>
+          </a>
+        </li>
           <li class="nav-item {% if 'index' in segment %} active {% endif %}">
             <a class="nav-link" href="/">
               <i class="material-icons">dashboard</i>
               <p>Dashboard</p>
             </a>
           </li>
-          <li class="nav-item {% if 'page-user' in segment %} active {% endif %}">
-            <a class="nav-link" href="/page-user.html">
-              <i class="material-icons">person</i>
-              <p>User Profile</p>
-            </a>
-          </li>
           <li class="nav-item {% if 'ui-tables' in segment %} active {% endif %}">
-            <a class="nav-link" href="/ui-tables.html">
+            <a class="nav-link" href="{% url 'minutes' %}">
               <i class="material-icons">content_paste</i>
-              <p>Table List</p>
-            </a>
-          </li>
-          <li class="nav-item {% if 'ui-typography' in segment %} active {% endif %}">
-            <a class="nav-link" href="{% url 'minutes' %}">
-              <i class="material-icons">library_books</i>
-              <p>Document</p>
-            </a>
-          </li>
-          <li class="nav-item {% if 'ui-typography' in segment %} active {% endif %}">
-            <i class="fas fa-download"></i>
-            <a type="button"
-            id="openUploadDocumentModalButton"
-            class="btn btn-outline-primary">
-              Upload Document
-          </a>
-          </li>
-          <li class="nav-item {% if 'ui-icons' in segment %} active {% endif %}">
-            <a class="nav-link" href="/agenda.html">
-              <i class="material-icons">bubble_chart</i>
-              <p>Agenda</p>
-            </a>
-          </li>
-          <li class="nav-item {% if 'ui-maps' in segment %} active {% endif %}">
-            <a class="nav-link" href="{% url 'minutes' %}">
-              <i class="material-icons">location_ons</i>
               <p>Minutes</p>
             </a>
           </li>
@@ -59,27 +58,10 @@
               <p>Notifications</p>
             </a>
           </li>
-          
-          <li class="nav-item ">
-            <a class="nav-link" href="/page-rtl-support.html">
-              <i class="material-icons">language</i>
-              <p>RTL Support</p>
-            </a>
-          </li>
-
           <li class="nav-item ">
             <a class="nav-link" href="{% url 'logout' %}" >
               <i class="material-icons">directions_run</i>
               <p>Logout</p>
-            </a>
-          </li>
-
-          <li class="nav-item active-pro ">
-            <a class="nav-link" 
-               target="_blank" rel="noopener noreferrer"  
-               href="">
-              <i class="material-icons">unarchive</i>
-              <p>MEETING PLUS</p>
             </a>
           </li>
 
