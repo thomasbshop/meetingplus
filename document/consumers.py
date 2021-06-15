@@ -62,11 +62,11 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		"""
 		# Messages will have a "command" key we can switch on
 		command = content.get("command", None)
-		print("MeetingChatConsumer: receive_json: " + str(command))
+		print(f'MeetingChatConsumer: receive_json: { content["documentId"] }')
 		try:
 			if command == "send":
-				if len(content["message"].lstrip()) != 0:
-					await self.send_room(content["document_id"], content["message"])
+				if len(content["xfdfString"].lstrip()) != 0:
+					await self.send_room(content["documentId"], content["xfdfString"])
 					# raise ClientError(422,"You can't send an empty message.")
 			elif command == "join":
 				# Make them join the meeting
@@ -90,10 +90,10 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 
 	async def send_room(self, document_id, message):
 		"""
-		Called by receive_json when someone sends a message to a room.
+		Called by receive_json when someone sends a message to a document.
 		"""
 		# Check they are in this room
-		print("MeetingChatConsumer: send_room")
+		print(f'MeetingChatConsumer: send_room {self.document_id }')
 		if self.document_id != None:
 			if str(document_id) != str(self.document_id):
 				raise ClientError("ROOM_ACCESS_DENIED", "Room access denied")
@@ -103,11 +103,12 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 			raise ClientError("ROOM_ACCESS_DENIED", "Room access denied")
 
 		# Get the room and send to the group about it
-		room = await get_room_or_error(document_id)
-		await create_meeting_room_chat_message(room, self.scope["user"], message)
+		document = await get_room_or_error(document_id)
+		print('docccccc', document)
+		await create_meeting_room_chat_message(document, self.scope["user"], message)
 
 		await self.channel_layer.group_send(
-			room.group_name,
+			document.group_name,
 			{
 				"type": "chat.message",
 				# "profile_image": self.scope["user"].profile_image.url,
@@ -122,15 +123,14 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		Called when someone has messaged our chat.
 		"""
 		# Send a message down to the client
-		print("MeetingChatConsumer: chat_message from user #" + str(event["user_id"]))
+		print("MeetingChatConsumer: chat_message from user #" + str(event))
 		timestamp = calculate_timestamp(timezone.now())
 		await self.send_json(
 			{
-				"msg_type": MSG_TYPE_MESSAGE,
-				# "profile_image": event["profile_image"],
-				"username": event["username"],
-				"user_id": event["user_id"],
-				"message": event["message"],
+				# "msg_type": MSG_TYPE_MESSAGE,
+				# # "username": event["username"],
+				# "user_id": event["user_id"],
+				# "message": event["message"],
 				"natural_timestamp": timestamp,
 			},
 		)
@@ -271,8 +271,8 @@ def get_num_connected_users(room):
 	return 0
 
 @database_sync_to_async
-def create_meeting_room_chat_message(room, user, message):
-    return DocumentChatMessage.objects.create(user=user, room=room, content=message)
+def create_meeting_room_chat_message(document, user, message):
+    return DocumentChatMessage.objects.create(user=user, document=document, content=message)
 
 @database_sync_to_async
 def connect_user(room, user):
@@ -285,14 +285,14 @@ def disconnect_user(room, user):
 @database_sync_to_async
 def get_room_or_error(document_id):
 	"""
-	Tries to fetch a room for the user
+	Tries to fetch a document for the user
 	"""
 	try:
 		print(document_id, '333333333333333333333333333333333333333333333333333333333333333')
-		room = DocumentChat.objects.get(pk=document_id)
+		document = DocumentChat.objects.get(pk=document_id)
 	except DocumentChat.DoesNotExist:
 		raise ClientError("ROOM_INVALID", "Invalid room.")
-	return room
+	return document
 
 
 @database_sync_to_async

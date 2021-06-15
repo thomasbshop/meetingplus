@@ -22,7 +22,7 @@ application = ProtocolTypeRouter({
   "http": get_asgi_application(),
   "websocket": AuthMiddlewareStack(
         URLRouter(
-            [   re_path(r'ws/', ChatConsumer.as_asgi()),
+            [   re_path(r'ws/', DocumentChatConsumer.as_asgi()),
                 re_path(r'ws/meeting/document/(?P<document_id>\w+)/$', DocumentChatConsumer.as_asgi()),
                 re_path(r'ws/meeting/chat/(?P<meeting_id>\w+)/$', MeetingChatConsumer.as_asgi()),
             ]

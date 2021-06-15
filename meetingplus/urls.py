@@ -22,10 +22,10 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),          # Django admin route
     path("accounts/", include("authentication.urls")), # Auth routes - login / register
-    path("", include('core.urls')),
-    # path("meeting/", include('core.urls')),
+    # path("", include('core.urls')),
+    path("meeting/", include('core.urls')),
     path("meeting/", include('meeting_room.urls', namespace='room')),
-    path("meeting/", include('document.urls')),
+    path("", include('document.urls')),
 ]
 
 #Add URL maps to redirect the base URL to our application

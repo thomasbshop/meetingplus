@@ -1,11 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from meeting_room.models import MeetingChatRoom
 
-def get_profile_image_filepath(self, filename):
-	return 'uploads/' + str(self.pk)
 
-def get_default_profile_image():
+def get_default_document():
 	return "uploads/document.pdf"
 
 def document_directory_path(instance, filename):
@@ -18,13 +15,6 @@ class DocumentChat(models.Model):
 	name 		= models.CharField(max_length=255, blank=False,)
 	file        = models.FileField(upload_to=document_directory_path)
 
-    # all users who are authenticated and viewing the chat ---room
-    # users 		= models.ManyToManyField(
-    #     User, 
-    #     blank=True,
-    #     related_name='meetings_added',
-    #     help_text="users who are connected to meeting room.")
-	
 	def __str__(self):
 		return f'{self.name}'
 
@@ -64,8 +54,8 @@ class DocumentChat(models.Model):
 		
 	
 class DocumentChatMessageManager(models.Manager):
-	def by_room(self, room):
-		qs = DocumentChatMessage.objects.filter(room=room).order_by("-timestamp")
+	def by_document(self, document):
+		qs = DocumentChatMessage.objects.filter(document=document).order_by("-timestamp")
 		return qs
 
 class DocumentChatMessage(models.Model):
@@ -73,7 +63,7 @@ class DocumentChatMessage(models.Model):
     Chat message created by a user inside a DocumentChat
     """
     user                = models.ForeignKey(User, on_delete=models.CASCADE)
-    room                = models.ForeignKey(DocumentChat, on_delete=models.CASCADE)
+    document            = models.ForeignKey(DocumentChat, on_delete=models.CASCADE)
     timestamp           = models.DateTimeField(auto_now_add=True)
     content             = models.TextField(unique=False, blank=False,)
 
