@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.forms.utils import ErrorList
 from django.http import HttpResponse, request
+from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, SignUpForm
 
 def login_view(request):
@@ -56,6 +57,7 @@ def register_user(request):
 
     return render(request, "accounts/register.html", {"form": form, "msg" : msg, "success" : success })
 
+@login_required
 def account_view(request, *args, **kwargs):
     """
     View user profile page.

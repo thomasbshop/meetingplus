@@ -9,10 +9,12 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 
 import os
 
+from django.urls import re_path
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
-import meeting_room.routing
+from document.consumers import ChatConsumer, DocumentChatConsumer
+from meeting_room.consumers import MeetingChatConsumer
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "meetingplus.settings")
 
@@ -20,7 +22,10 @@ application = ProtocolTypeRouter({
   "http": get_asgi_application(),
   "websocket": AuthMiddlewareStack(
         URLRouter(
-            meeting_room.routing.websocket_urlpatterns
+            [   re_path(r'ws/', DocumentChatConsumer.as_asgi()),
+                re_path(r'ws/meeting/document/(?P<document_id>\w+)/$', DocumentChatConsumer.as_asgi()),
+                re_path(r'ws/meeting/chat/(?P<meeting_id>\w+)/$', MeetingChatConsumer.as_asgi()),
+            ]
         )
     ),
 })

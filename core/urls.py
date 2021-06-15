@@ -4,6 +4,6 @@ from .views import dashboard, minutes
 
 urlpatterns = [
     # path("", dashboard, name="dashboard"),
-    path(r"", dashboard, name="dashboard"),
-    path(r"minutes/", minutes, name="minutes"),
+    # path(r"", dashboard, name="dashboard"),
+    path(r"", minutes, name="minutes"),
 ]

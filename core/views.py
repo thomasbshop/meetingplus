@@ -6,7 +6,7 @@ from django.template import Template, Context, loader
 from django.views.decorators.cache import cache_page
 from django.conf import settings
 
-@login_required(login_url="/login/")
+@login_required(login_url="accounts/login/")
 def dashboard(request):
     context = {}
     context['segment'] = 'index'
@@ -14,7 +14,7 @@ def dashboard(request):
     html_template = loader.get_template( 'index.html' )
     return HttpResponse(html_template.render(context, request))
 
-@login_required(login_url="/login/")
+@login_required()
 def minutes(request):
     context = {'minutes': 'minutes page.'}
     return render(request, 'minutes.html', context)

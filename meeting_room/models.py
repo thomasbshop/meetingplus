@@ -1,12 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from document.models import DocumentChat
 
 class MeetingChatRoom(models.Model):
 
 	# Room title
 	title 		= models.CharField(max_length=255, unique=True, blank=False,)
-
+	# documents in this meeting
+	documents   = models.ManyToManyField(
+		DocumentChat,
+		blank=True,
+		related_name='meetings_added',
+		help_text='Documents uploaded in this meeting.')
 	# all users who are authenticated and viewing the chat
 	users 		= models.ManyToManyField(
         User, 

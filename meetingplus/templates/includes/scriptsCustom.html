@@ -1,0 +1,88 @@
+
+  <script>
+    $(document).ready(function() {
+      $().ready(function() {
+        function postDocument(){console.log('JussiPussi')};
+        $('#openUploadDocumentModalButton').click(function(event) {
+          console.log('wewerreer')
+          var modal = $('#uploadDocumentModal');
+          var url = `http://${window.location.host}/meeting/upload_document/`
+          console.log(url)
+          $.ajax({
+              type: "GET",
+              url: url
+          }).done(function(data, textStatus, jqXHR) {
+              modal.find('.modal-body').html(data);
+              modal.modal('show');
+              formAjaxSubmit(modal, url);
+          }).fail(function(jqXHR, textStatus, errorThrown) {
+              console.log(errorThrown);
+          });
+        });
+
+        function formAjaxSubmit(modal, endpoint) {
+          var form = modal.find('.modal-body form');
+          var myForm = document.getElementById('uploadDocumentForm');
+          var footer = $(modal).find('.modal-footer');
+
+          // bind to the form’s submit event
+          $(myForm).on('submit', function(event) {
+            let myForm = document.getElementById('uploadDocumentForm');
+            let formData = new FormData(myForm)
+            let myFile = document.getElementById('id_file');  // Our HTML files' ID
+            // Get the files from the form input
+            var files = myFile.files;
+            // Select only the first file from the input array
+            var file = files[0];
+            // Add the file to the AJAX request
+            // formData.append('theDocument', file, file.name);
+            console.log("create post is working!") // sanity check
+            var url = `http://${window.location.host}/meeting/upload_document/`
+
+            // prevent the form from performing its default submit action
+            event.preventDefault();
+            footer.addClass('loading');
+            formData.set('meeting_id', 1)
+            // either use the action supplied by the form, or the original rendering url
+            // var url = $(this).attr('action') || endpoint;
+            console.log(formData.values());
+            // serialize the form’s content and sent via an AJAX call
+            // using the form’s defined method
+            $.ajax({
+              url : url, // the endpoint
+              type : "POST", // http method
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              data : formData,
+              cache: false,
+              processData: false,
+              contentType: false,
+              success: function(json) {
+                  // If the server sends back a successful response,
+                  // we need to further check the HTML received
+                  console.log(json)
+                  // If xhr contains any field errors, the form did not
+                  // validate successfully, so we update the modal body
+                  // with the new form and its error
+                  if ($(xhr).find('.has-error').length > 0) {
+                      $(modal).find('.modal-body').html(xhr);
+                      // formAjaxSubmit(modal, url);
+                  } else {
+                      // otherwise, we've done and can close the modal
+                      $(modal).modal('hide');
+                  }
+              },
+              error: function(xhr, ajaxOptions, thrownError) {
+                $(modal).modal('hide');
+                console.log(`Error: ${xhr}, ${ajaxOptions}, ${thrownError}`);
+              },
+              complete: function() {
+                  footer.removeClass('loading');
+              }
+            });
+          });
+        }
+          
+   
+       });
+    });
+  </script>
