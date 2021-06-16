@@ -59,15 +59,13 @@ class DocumentChatMessageManager(models.Manager):
 		return qs
 
 class DocumentChatMessage(models.Model):
-    """
-    Chat message created by a user inside a DocumentChat
-    """
-    user                = models.ForeignKey(User, on_delete=models.CASCADE)
-    document            = models.ForeignKey(DocumentChat, on_delete=models.CASCADE)
-    timestamp           = models.DateTimeField(auto_now_add=True)
-    content             = models.TextField(unique=False, blank=False,)
-
-    objects = DocumentChatMessageManager()
-
-    def __str__(self):
-        return self.content
+	"""
+	Chat message created by a user inside a DocumentChat
+	"""
+	user                = models.ForeignKey(User, on_delete=models.CASCADE)
+	document            = models.ForeignKey(DocumentChat, on_delete=models.CASCADE)
+	timestamp           = models.DateTimeField(auto_now_add=True)
+	annotationId		= models.TextField(verbose_name='annotationId', blank=False)
+	content             = models.TextField(unique=False, blank=False,)
+	
+	objects = DocumentChatMessageManager()

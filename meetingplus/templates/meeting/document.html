@@ -23,11 +23,11 @@
     const protocol = window.location.protocol;
     const port = window.location.port;
     const hostName = window.location.hostname;
-    console.log('{{ document_id }}')
+    console.log('{{ request.user }}')
     const url = `ws://${hostName}:${port}/ws/meeting/document/${documentId}/`;
     const connection = new WebSocket(url);
     console.log(connection);
-    const nameList = ['Andy', 'Andrew', 'Logan', 'Justin', 'Matt', 'Sardor', 'Zhijie', 'James', 'Kristian', 'Mary', 'Patricia', 'Jennifer', 'Linda', 'David', 'Joseph', 'Thomas', 'Naman', 'Nancy', 'Sandra'];
+    user = '{{ request.user }}';
     const serializer = new XMLSerializer();
 
     connection.onerror = error => {
@@ -43,6 +43,12 @@
                   "documentId": documentId
               }));
           }
+         
+        //   connection.send(JSON.stringify({
+		// 		"command": "get_document_messages",
+		// 		"documentId": documentId,
+		// 		"page_number": 1,
+		// 	}));
       })
 
     WebViewer({
@@ -50,8 +56,11 @@
     initialDoc: `http://${hostName}:${port}{{ document_path }}`,
     // initialDoc: 'https://pdftron.s3.amazonaws.com/downloads/pl/webviewer-demo.pdf',
     documentXFDFRetriever: async () => {
-        const rows = await loadXfdfStrings(DOCUMENT_ID);
-        return JSON.parse(rows).map(row => row.xfdfString);
+        const info = await loadXfdfStrings(DOCUMENT_ID);
+        let details = JSON.parse(info);
+        console.log(details.messages);
+        var messages = details.messages;
+        return messages.map(row => row.xfdfString);
     },
     }, viewerElement).then( instance => {
 
@@ -60,7 +69,7 @@
     instance.openElements(['leftPanel']);
     annotManager = instance.docViewer.getAnnotationManager();
     // Assign a random name to client
-    annotManager.setCurrentUser(nameList[Math.floor(Math.random()*nameList.length)]);
+    annotManager.setCurrentUser(user);
     annotManager.on('annotationChanged', async e => {
         // If annotation change is from import, return
         if (e.imported) {
@@ -92,26 +101,36 @@
     });
 
     connection.onmessage = async (message) => {
+        console.log('messageeeeeee');
         const annotation = JSON.parse(message.data);
         const annotations = await annotManager.importAnnotCommand(annotation.xfdfString);
         await annotManager.drawAnnotationsFromList(annotations);
         }
     });
 
+    // connection.send(JSON.stringify({
+	// 			"command": "get_document_messages",
+	// 			"documentId": documentId,
+	// 			"page_number": 1,
+	// 		}));
+
     const loadXfdfStrings = (documentId) => {
-    return new Promise((resolve, reject) => {
-        fetch(`/server/annotationHandler.js?documentId=${documentId}`, {
-        method: 'GET',
-        }).then((res) => {
-        if (res.status < 400) {
-            res.text().then(xfdfStrings => {
-            resolve(xfdfStrings);
+        return new Promise((resolve, reject) => {
+            fetch(`/meeting/document/messages/${documentId}/`, {
+            method: 'GET',
+            })
+            .then((res) => {
+                if (res.status < 400) {
+                    // res.text().then(xfdfStrings => {
+                    // resolve(xfdfStrings);
+                    res.text().then(xfdfStrings => {
+                    resolve(xfdfStrings);
+                    });
+                } else {
+                    reject(res);
+                }
             });
-        } else {
-            reject(res);
-        }
         });
-    });
     };
 
 

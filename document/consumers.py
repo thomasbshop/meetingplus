@@ -66,7 +66,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		try:
 			if command == "send":
 				if len(content["xfdfString"].lstrip()) != 0:
-					await self.send_room(content["documentId"], content["xfdfString"])
+					await self.send_room(content["documentId"], content["annotationId"], content["xfdfString"])
 					# raise ClientError(422,"You can't send an empty message.")
 			elif command == "join":
 				# Make them join the meeting
@@ -74,10 +74,10 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 			elif command == "leave":
 				# Leave the room
 				await self.leave_room(content["room"])
-			elif command == "get_room_chat_messages":
+			elif command == "get_document_messages":
 				await self.display_progress_bar(True)
 				room = await get_room_or_error(content['documentId'])
-				payload = await get_room_chat_messages(room, content['page_number'])
+				payload = await get_document_messages(room, content['page_number'])
 				if payload != None:
 					payload = json.loads(payload)
 					await self.send_messages_payload(payload['messages'], payload['new_page_number'])
@@ -88,7 +88,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 			await self.display_progress_bar(False)
 			await self.handle_client_error(e)
 
-	async def send_room(self, document_id, message):
+	async def send_room(self, document_id, annotationId, message):
 		"""
 		Called by receive_json when someone sends a message to a document.
 		"""
@@ -103,15 +103,15 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 			raise ClientError("ROOM_ACCESS_DENIED", "Room access denied")
 
 		# Get the room and send to the group about it
-		document = await get_room_or_error(document_id)
+		document = await get_document_or_error(document_id)
 		print('docccccc', document)
-		await create_meeting_room_chat_message(document, self.scope["user"], message)
+		await create_document_chat_message(document, self.scope["user"], annotationId, message)
 
 		await self.channel_layer.group_send(
 			document.group_name,
 			{
 				"type": "chat.message",
-				# "profile_image": self.scope["user"].profile_image.url,
+				"annotationId": annotationId,
 				"username": self.scope["user"].username,
 				"user_id": self.scope["user"].id,
 				"message": message,
@@ -142,32 +142,32 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		print("MeetingChatConsumer: join_room")
 		is_auth = is_authenticated(self.scope["user"])
 		try:
-			room = await get_room_or_error(document_id)
+			document = await get_document_or_error(document_id)
 		except ClientError as e:
 			await self.handle_client_error(e)
 
-		# Add user to "users" list for room
+		# Add user to "users" list for document
 		if is_auth:
-			await connect_user(room, self.scope["user"])
+			await connect_user(document, self.scope["user"])
 
-		# Store that we're in the room
-		self.document_id = room.id
+		# Store that we're in the doc
+		self.document_id = document.id
 
-		# Add them to the group so they get room messages
+		# Add them to the group so they get doc messages
 		await self.channel_layer.group_add(
-			room.group_name,
+			document.group_name,
 			self.channel_name,
 		)
 
-		# Instruct their client to finish opening the room
+		# Instruct their client to finish opening the doc
 		await self.send_json({
-			"join": str(room.id)
+			"join": str(document.id)
 		})
 
 		# send the new user count to the room
-		num_connected_users = await get_num_connected_users(room)
+		num_connected_users = await get_num_connected_users(document)
 		await self.channel_layer.group_send(
-			room.group_name,
+			document.group_name,
 			{
 				"type": "connected.user.count",
 				"connected_user_count": num_connected_users,
@@ -221,7 +221,6 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		Send a payload of messages to the ui
 		"""
 		print("MeetingChatConsumer: send_messages_payload. ")
-
 		await self.send_json(
 			{
 				"messages_payload": "messages_payload",
@@ -271,8 +270,8 @@ def get_num_connected_users(room):
 	return 0
 
 @database_sync_to_async
-def create_meeting_room_chat_message(document, user, message):
-    return DocumentChatMessage.objects.create(user=user, document=document, content=message)
+def create_document_chat_message(document, user, annotationId, message):
+    return DocumentChatMessage.objects.create(user=user, annotationId=annotationId, document=document, content=message)
 
 @database_sync_to_async
 def connect_user(room, user):
@@ -282,7 +281,7 @@ def connect_user(room, user):
 @database_sync_to_async
 def disconnect_user(room, user):
     # return room.disconnect_user(user)
-	return
+	return 0
 
 @database_sync_to_async
 def get_document_or_error(document_id):
@@ -307,11 +306,10 @@ def get_room_or_error(document_id):
 	return document
 
 @database_sync_to_async
-def get_room_chat_messages(room, page_number):
+def get_document_messages(document, page_number=1):
 	try:
-		qs = DocumentChatMessage.objects.by_room(room)
-		p = Paginator(qs, DEFAULT_ROOM_CHAT_MESSAGE_PAGE_SIZE)
-
+		qs = DocumentChatMessage.objects.by_document(document)
+		p = Paginator(qs, 100)
 		payload = {}
 		messages_data = None
 		new_page_number = int(page_number)  
@@ -336,7 +334,7 @@ class LazyRoomChatMessageEncoder(Serializer):
 		dump_object.update({'msg_id': str(obj.id)})
 		dump_object.update({'user_id': str(obj.user.id)})
 		dump_object.update({'username': str(obj.user.username)})
-		dump_object.update({'message': str(obj.content)})
-		# dump_object.update({'profile_image': str(obj.user.profile_image.url)})
+		dump_object.update({'xfdfString': str(obj.content)})
+		dump_object.update({'annotationId': str(obj.annotationId)})
 		dump_object.update({'natural_timestamp': calculate_timestamp(obj.timestamp)})
 		return dump_object
