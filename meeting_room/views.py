@@ -1,4 +1,3 @@
-from core.models import AgendaItem
 from django.http.response import HttpResponseRedirect
 from document.models import DocumentChat
 from os import name
@@ -8,6 +7,7 @@ from django.http import HttpResponseForbidden, HttpResponse
 from django.contrib.auth.decorators import login_required
 from meetingplus.settings import MEDIA_URL
 from document.forms import DocumentChatForm
+from core.models import AgendaItem, MinuteItem
 from .models import MeetingChatRoom
 
 
@@ -49,15 +49,24 @@ def agenda(request):
         item = AgendaItem(agenda=agenda, item=new_item)
         item.save()
         return HttpResponseRedirect(request.path_info)
-    items = AgendaItem.objects.filter(agenda=agenda)
-    print('me', items)
-    context = {'agenda': items}
+    agenda_items = AgendaItem.objects.filter(agenda=agenda)
+    context = {'agenda_items': agenda_items}
     return render(request, 'meeting/agenda.html', context)
 
 @login_required()
 def minutes(request):
     meeting_id = 1
-    context = {'minutes': 'minutes page.'}
+    meeting = MeetingChatRoom.objects.get(id=meeting_id)
+    agenda, minutes = meeting.agenda, meeting.minutes
+    # If this is a POST request then process the Form data
+    if request.method == 'POST':
+        new_item = request.POST['item']
+        item = MinuteItem(minute=minutes, item=new_item)
+        item.save()
+        return HttpResponseRedirect(request.path_info)
+    agenda_items = AgendaItem.objects.filter(agenda=agenda)
+    minutes_items = MinuteItem.objects.filter(minute=minutes)
+    context = {'agenda_items': agenda_items, 'minutes_items': minutes_items }
     return render(request, 'meeting/minutes.html', context)
 
 def upload_file(request):

@@ -10,12 +10,15 @@
 <div class="col">
     <div>
         <h2>Agenda</h2>
-        <span><h4>Date: {% now "D d M Y" %}</h4></span>
+        <span class="row">
+          <h4 class="col">Date: {% now "D d M Y" %}</h4>
+          <h4 class="col">Time: {% now "h:i a" %}</h4>
+        </span>
     </div> 
     <div class="border">
       <div style="margin: 2em;">
         <ol class="list-group list-group-flush">
-            {% for item in agenda %} 
+            {% for item in agenda_items %} 
             <li>{{item.item}}</li>
             {% endfor %}
             

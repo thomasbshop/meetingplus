@@ -19,7 +19,7 @@
     <div style="margin: 2em;">
       <h3>Agenda</h3>
       <ol class="list-group list-group-flush">
-          {% for item in agenda %} 
+          {% for item in agenda_items %} 
           <li>{{item.item}}</li>
           {% endfor %}
       </ol>
@@ -29,12 +29,12 @@
     <div style="margin: 2em;">
       <h3>Minutes</h3>
       <ol class="list-group list-group-flush">
-          {% for item in minutes %} 
+          {% for item in minutes_items %} 
           <li>
             <p>{{item.item}}</p>
           </li>
           {% endfor %}
-          <form action="{% url 'agenda' %}" method = "post">
+          <form action="{% url 'minutes' %}" method = "post">
             {% csrf_token %}
             <textarea name="item" rows="4" cols="60" required></textarea>
             <div><input type="submit" value="Add Item"></div>
