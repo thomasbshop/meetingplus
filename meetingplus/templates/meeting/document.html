@@ -7,8 +7,7 @@
 
 {% block content %}
     <div class='row'>
-        {{meeting_id}}
-    <div id='viewer' style='width: 100%; height: 1000px'></div>
+        <div id='viewer' style='width: 100%; height: 1000px'></div>
     </div>
 {% endblock content %}
 
@@ -17,7 +16,6 @@
 <script type="text/javascript">
      function showDocumentFunction(documentId){
     const viewerElement = document.getElementById('viewer');
-    // var documentId = 15;
     let annotManager = null;
     const DOCUMENT_ID = documentId;
     const protocol = window.location.protocol;
@@ -33,7 +31,7 @@
     connection.onerror = error => {
         console.warn(`Error from WebSocket: ${error}`);
     }
-    console.log(url, `http://${hostName}:${port}{{ document_path }}`)
+    console.log(url, `http://${hostName}:${port}{{ document_path }}`, documentId)
     connection.addEventListener("open", function(e){
       console.log("Public Public ChatSocket OPEN")
           // join chat room
@@ -43,13 +41,7 @@
                   "documentId": documentId
               }));
           }
-         
-        //   connection.send(JSON.stringify({
-		// 		"command": "get_document_messages",
-		// 		"documentId": documentId,
-		// 		"page_number": 1,
-		// 	}));
-      })
+        })
 
     WebViewer({
     path: 'static/lib', // path to the PDFTron 'lib' folder
@@ -57,10 +49,7 @@
     // initialDoc: 'https://pdftron.s3.amazonaws.com/downloads/pl/webviewer-demo.pdf',
     documentXFDFRetriever: async () => {
         const info = await loadXfdfStrings(DOCUMENT_ID);
-        let details = JSON.parse(info);
-        console.log(details.messages);
-        var messages = details.messages;
-        return messages.map(row => row.xfdfString);
+        return JSON.parse(info).map((row) => row.xfdfString);
     },
     }, viewerElement).then( instance => {
 
@@ -105,14 +94,8 @@
         const annotation = JSON.parse(message.data);
         const annotations = await annotManager.importAnnotCommand(annotation.xfdfString);
         await annotManager.drawAnnotationsFromList(annotations);
-        }
+      }
     });
-
-    // connection.send(JSON.stringify({
-	// 			"command": "get_document_messages",
-	// 			"documentId": documentId,
-	// 			"page_number": 1,
-	// 		}));
 
     const loadXfdfStrings = (documentId) => {
         return new Promise((resolve, reject) => {
@@ -121,15 +104,13 @@
             })
             .then((res) => {
                 if (res.status < 400) {
-                    // res.text().then(xfdfStrings => {
-                    // resolve(xfdfStrings);
                     res.text().then(xfdfStrings => {
                     resolve(xfdfStrings);
                     });
                 } else {
                     reject(res);
                 }
-            });
+            })
         });
     };
 
@@ -153,10 +134,10 @@
         if (annotation.nodeType !== annotation.TEXT_NODE) {
             const annotationString = serializer.serializeToString(annotation);
             connection.send(JSON.stringify({
-            command: "send",
-            documentId: DOCUMENT_ID,
-            annotationId: annotation.getAttribute('name'),
-            xfdfString: convertToXfdf(annotationString, action)
+              command: "send",
+              documentId: DOCUMENT_ID,
+              annotationId: annotation.getAttribute('name'),
+              xfdfString: convertToXfdf(annotationString, action)
             }));
         }
     }
