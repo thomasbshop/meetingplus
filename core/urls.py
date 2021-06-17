@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from django.urls import path
-from .views import dashboard, minutes, agenda
+from meeting_room.views import minutes, agenda
 
 urlpatterns = [
     # path("", dashboard, name="dashboard"),

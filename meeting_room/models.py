@@ -1,11 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 from document.models import DocumentChat
+from core.models import Agenda, Minute
 
 class MeetingChatRoom(models.Model):
-
 	# Room title
 	title 		= models.CharField(max_length=255, unique=True, blank=False,)
+	agenda		= models.OneToOneField(Agenda, on_delete=models.CASCADE, blank=True, null=True)
+	minutes		= models.OneToOneField(Minute, on_delete=models.CASCADE, blank=True, null=True)
 	# documents in this meeting
 	documents   = models.ManyToManyField(
 		DocumentChat,
@@ -22,7 +24,6 @@ class MeetingChatRoom(models.Model):
 	def __str__(self):
 		return self.title
 
-
 	def connect_user(self, user):
 		"""
 		return true if user is added to the users list
@@ -35,7 +36,6 @@ class MeetingChatRoom(models.Model):
 		elif user in self.users.all():
 			is_user_added = True
 		return is_user_added 
-
 
 	def disconnect_user(self, user):
 		"""

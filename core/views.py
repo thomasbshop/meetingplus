@@ -16,22 +16,23 @@ def dashboard(request):
     html_template = loader.get_template( 'index.html' )
     return HttpResponse(html_template.render(context, request))
 
-@login_required()
-def agenda(request):
-    # If this is a POST request then process the Form data
-    if request.method == 'POST':
-        new_item = request.POST['item']
-        item = Agenda(item = new_item)
-        item.save()
-        return HttpResponseRedirect(request.path_info)
-    items = Agenda.objects.all()
-    context = {'agenda': items}
-    return render(request, 'meeting/agenda.html', context)
+# @login_required()
+# def agenda(request):
+#     # If this is a POST request then process the Form data
+#     if request.method == 'POST':
+#         new_item = request.POST['item']
+#         item = Agenda(item = new_item)
+#         item.save()
+#         return HttpResponseRedirect(request.path_info)
+#     items = Agenda.objects.all()
+#     context = {'agenda': items}
+#     return render(request, 'meeting/agenda.html', context)
     
-@login_required()
-def minutes(request):
-    context = {'minutes': 'minutes page.'}
-    return render(request, 'meeting/minutes.html', context)
+# @login_required()
+# def minutes(request):
+#     meeting_id = 1
+#     context = {'minutes': 'minutes page.'}
+#     return render(request, 'meeting/minutes.html', context)
 
 JS_SETTINGS_TEMPLATE = """
     window.settings = JSON.parse('{{ json_data|escapejs }}');

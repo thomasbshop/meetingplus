@@ -29,9 +29,16 @@
     <div style="margin: 2em;">
       <h3>Minutes</h3>
       <ol class="list-group list-group-flush">
-          {% for item in agenda %} 
-          <li>{{item.item}}</li>
+          {% for item in minutes %} 
+          <li>
+            <p>{{item.item}}</p>
+          </li>
           {% endfor %}
+          <form action="{% url 'agenda' %}" method = "post">
+            {% csrf_token %}
+            <textarea name="item" rows="4" cols="60" required></textarea>
+            <div><input type="submit" value="Add Item"></div>
+          </form> 
       </ol>
     </div>
   </div>

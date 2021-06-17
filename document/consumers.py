@@ -4,7 +4,7 @@ from django.core.serializers import serialize
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.generic.websocket import WebsocketConsumer
 from channels.db import database_sync_to_async
-import json
+import json, re
 from django.utils import timezone
 
 from meeting_room.constants import *
@@ -123,14 +123,15 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		Called when someone has messaged our chat.
 		"""
 		# Send a message down to the client
-		print("MeetingChatConsumer: chat_message from user #" + str(event))
+		print("MeetingChatConsumer: chat_message from user #" + 'str(event)')
 		timestamp = calculate_timestamp(timezone.now())
 		await self.send_json(
 			{
-				# "msg_type": MSG_TYPE_MESSAGE,
-				# # "username": event["username"],
-				# "user_id": event["user_id"],
-				# "message": event["message"],
+				"msg_type": MSG_TYPE_MESSAGE,
+				"annotationId": event['annotationId'],
+				"username": event["username"],
+				"user_id": event["user_id"],
+				"message": event["message"],
 				"natural_timestamp": timestamp,
 			},
 		)
@@ -271,7 +272,12 @@ def get_num_connected_users(room):
 
 @database_sync_to_async
 def create_document_chat_message(document, user, annotationId, message):
-    return DocumentChatMessage.objects.create(user=user, annotationId=annotationId, document=document, content=message)
+	# replace a one single quote in the xml string and replce with two
+	# of them
+	pattern = "\'"
+	repl = "''"
+	result = re.sub(pattern, repl, message)
+	return DocumentChatMessage.objects.create(user=user, annotationId=annotationId, document=document, content=result)
 
 @database_sync_to_async
 def connect_user(room, user):
@@ -316,11 +322,11 @@ def get_document_messages(document, page_number=1):
 		if new_page_number <= p.num_pages:
 			new_page_number = new_page_number + 1
 			s = LazyRoomChatMessageEncoder()
-			payload['messages'] = s.serialize(p.page(page_number).object_list)
+			messages = s.serialize(p.page(page_number).object_list)
 		else:
 			payload['messages'] = "None"
 		payload['new_page_number'] = new_page_number
-		return json.dumps(payload)
+		return messages
 	except Exception as e:
 		print("EXCEPTION: " + str(e))
 		return None
@@ -328,13 +334,14 @@ def get_document_messages(document, page_number=1):
 
 
 class LazyRoomChatMessageEncoder(Serializer):
+	'''Serialiser class'''
 	def get_dump_object(self, obj):
 		dump_object = {}
-		dump_object.update({'msg_type': MSG_TYPE_MESSAGE})
-		dump_object.update({'msg_id': str(obj.id)})
-		dump_object.update({'user_id': str(obj.user.id)})
-		dump_object.update({'username': str(obj.user.username)})
+		# dump_object.update({'msg_type': MSG_TYPE_MESSAGE})
+		# dump_object.update({'msg_id': str(obj.id)})
+		# dump_object.update({'user_id': str(obj.user.id)})
+		# dump_object.update({'username': str(obj.user.username)})
 		dump_object.update({'xfdfString': str(obj.content)})
 		dump_object.update({'annotationId': str(obj.annotationId)})
-		dump_object.update({'natural_timestamp': calculate_timestamp(obj.timestamp)})
+		# dump_object.update({'natural_timestamp': calculate_timestamp(obj.timestamp)})
 		return dump_object
