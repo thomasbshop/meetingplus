@@ -49,7 +49,8 @@
     // initialDoc: 'https://pdftron.s3.amazonaws.com/downloads/pl/webviewer-demo.pdf',
     documentXFDFRetriever: async () => {
         const info = await loadXfdfStrings(DOCUMENT_ID);
-        return JSON.parse(info).map((row) => row.xfdfString);
+        console.log('info',info);
+        return info.messages.map((row) => row.xfdfString);
     },
     }, viewerElement).then( instance => {
 
@@ -90,7 +91,7 @@
     });
 
     connection.onmessage = async (message) => {
-        console.log('messageeeeeee');
+        console.log('messageeeeeee', message);
         const annotation = JSON.parse(message.data);
         const annotations = await annotManager.importAnnotCommand(annotation.xfdfString);
         await annotManager.drawAnnotationsFromList(annotations);
@@ -104,7 +105,7 @@
             })
             .then((res) => {
                 if (res.status < 400) {
-                    res.text().then(xfdfStrings => {
+                    res.json().then(xfdfStrings => {
                     resolve(xfdfStrings);
                     });
                 } else {
@@ -131,6 +132,7 @@
 
     // helper function to send annotation changes to WebSocket server
     const sendAnnotationChange = (annotation, action) => {
+        console.log('messageeeeeee', annotation, action);
         if (annotation.nodeType !== annotation.TEXT_NODE) {
             const annotationString = serializer.serializeToString(annotation);
             connection.send(JSON.stringify({

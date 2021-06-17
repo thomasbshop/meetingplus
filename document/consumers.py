@@ -104,7 +104,6 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 
 		# Get the room and send to the group about it
 		document = await get_document_or_error(document_id)
-		print('docccccc', document)
 		await create_document_chat_message(document, self.scope["user"], annotationId, message)
 
 		await self.channel_layer.group_send(
@@ -123,7 +122,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		Called when someone has messaged our chat.
 		"""
 		# Send a message down to the client
-		print("MeetingChatConsumer: chat_message from user #" + 'str(event)')
+		print("MeetingChatConsumer: chat_message from user #" + str(event))
 		timestamp = calculate_timestamp(timezone.now())
 		await self.send_json(
 			{
@@ -131,7 +130,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 				"annotationId": event['annotationId'],
 				"username": event["username"],
 				"user_id": event["user_id"],
-				"message": event["message"],
+				"xfdfString": event["message"],
 				"natural_timestamp": timestamp,
 			},
 		)
@@ -277,7 +276,11 @@ def create_document_chat_message(document, user, annotationId, message):
 	pattern = "\'"
 	repl = "''"
 	result = re.sub(pattern, repl, message)
-	return DocumentChatMessage.objects.create(user=user, annotationId=annotationId, document=document, content=result)
+	values_to_update = {'content': result}
+	obj, created = DocumentChatMessage.objects.update_or_create(
+		user=user, annotationId=annotationId, document=document, 
+		defaults=values_to_update)
+	return (obj, created)
 
 @database_sync_to_async
 def connect_user(room, user):
@@ -322,11 +325,11 @@ def get_document_messages(document, page_number=1):
 		if new_page_number <= p.num_pages:
 			new_page_number = new_page_number + 1
 			s = LazyRoomChatMessageEncoder()
-			messages = s.serialize(p.page(page_number).object_list)
+			payload['messages'] = s.serialize(p.page(page_number).object_list)
 		else:
 			payload['messages'] = "None"
 		payload['new_page_number'] = new_page_number
-		return messages
+		return payload
 	except Exception as e:
 		print("EXCEPTION: " + str(e))
 		return None

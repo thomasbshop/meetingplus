@@ -42,6 +42,7 @@ def meeting_chat_room(request, meeting_id=1):
 def agenda(request):
     meeting_id = 1
     meeting = MeetingChatRoom.objects.get(id=meeting_id)
+    meeting_documents = meeting.documents.all()
     agenda = meeting.agenda
     # If this is a POST request then process the Form data
     if request.method == 'POST':
@@ -50,13 +51,14 @@ def agenda(request):
         item.save()
         return HttpResponseRedirect(request.path_info)
     agenda_items = AgendaItem.objects.filter(agenda=agenda)
-    context = {'agenda_items': agenda_items}
+    context = {'agenda_items': agenda_items, 'meeting_documents': meeting_documents}
     return render(request, 'meeting/agenda.html', context)
 
 @login_required()
 def minutes(request):
     meeting_id = 1
     meeting = MeetingChatRoom.objects.get(id=meeting_id)
+    meeting_documents = meeting.documents.all()
     agenda, minutes = meeting.agenda, meeting.minutes
     # If this is a POST request then process the Form data
     if request.method == 'POST':
@@ -66,7 +68,9 @@ def minutes(request):
         return HttpResponseRedirect(request.path_info)
     agenda_items = AgendaItem.objects.filter(agenda=agenda)
     minutes_items = MinuteItem.objects.filter(minute=minutes)
-    context = {'agenda_items': agenda_items, 'minutes_items': minutes_items }
+    context = {
+        'agenda_items': agenda_items, 'minutes_items': minutes_items, 
+        'meeting_documents': meeting_documents }
     return render(request, 'meeting/minutes.html', context)
 
 def upload_file(request):

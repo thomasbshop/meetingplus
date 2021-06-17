@@ -26,8 +26,7 @@ async def document_messages(request, document_id):
     try:
         payload = await get_document_messages(document_id, page_number=1)
         if payload != None:
-            payload = json.loads(payload)
-            print("it is me", payload)
             return JsonResponse(payload)
-    except:
-        return HttpResponse(status=204)
+    except Exception as e: 
+        print(e)
+        return HttpResponse(content='[]', status=204)
