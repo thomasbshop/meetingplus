@@ -33,10 +33,12 @@ def meeting_chat_room(request, meeting_id=1):
     try:
         # retrieve meeting with given id joined by the current user
         meeting = MeetingChatRoom(id=meeting_id)
+        meeting = MeetingChatRoom.objects.get(id=meeting_id)
+        meeting_documents = meeting.documents.all()
     except:
         # user is not invited to the meeting or meeting does not exist
         return HttpResponseForbidden(f"403: Not allowed here.")
-    return render(request, 'meeting/chat_room.html', {'meeting_id': meeting_id})
+    return render(request, 'meeting/chat_room.html', {'meeting_id': meeting_id, 'meeting_documents': meeting_documents})
 
 @login_required()
 def agenda(request):

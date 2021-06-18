@@ -38,7 +38,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		"""
 		Called when the websocket is handshaking as part of initial connection.
 		"""
-		print("MeetingChatConsumer: connect: " + str(self.scope["user"]))
+		print("DocumentChatConsumer: connect: " + str(self.scope["user"]))
 		# let everyone connect. But limit read/write to authenticated users
 		await self.accept()
 		self.document_id = None
@@ -48,7 +48,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		Called when the WebSocket closes for any reason.
 		"""
 		# leave the room
-		print("MeetingChatConsumer: disconnect")
+		print("DocumentChatConsumer: disconnect")
 		try:
 			if self.document_id != None:
 				await self.leave_room(self.document_id)
@@ -62,7 +62,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		"""
 		# Messages will have a "command" key we can switch on
 		command = content.get("command", None)
-		print(f'MeetingChatConsumer: receive_json: { content }')
+		print(f'DocumentChatConsumer: receive_json: { content }')
 		try:
 			if command == "send":
 				if len(content["xfdfString"].lstrip()) != 0:
@@ -93,7 +93,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		Called by receive_json when someone sends a message to a document.
 		"""
 		# Check they are in this room
-		print(f'MeetingChatConsumer: send_room {self.document_id }')
+		print(f'DocumentChatConsumer: send_room {self.document_id }')
 		if self.document_id != None:
 			if str(document_id) != str(self.document_id):
 				raise ClientError("ROOM_ACCESS_DENIED", "Document access denied")
@@ -122,7 +122,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		Called when someone has messaged our chat.
 		"""
 		# Send a message down to the client
-		print("MeetingChatConsumer: chat_message from user #" + str(event))
+		print("DocumentChatConsumer: chat_message from user #" + str(event))
 		timestamp = calculate_timestamp(timezone.now())
 		await self.send_json(
 			{
@@ -139,7 +139,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		"""
 		Called by receive_json when someone sent a join command.
 		"""
-		print("MeetingChatConsumer: join_room")
+		print("DocumentChatConsumer: join_room")
 		is_auth = is_authenticated(self.scope["user"])
 		try:
 			document = await get_document_or_error(document_id)
@@ -178,7 +178,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		"""
 		Called by receive_json when someone sent a leave command.
 		"""
-		print("MeetingChatConsumer: leave_room")
+		print("DocumentChatConsumer: leave_room")
 		is_auth = is_authenticated(self.scope["user"])
 		room = await get_room_or_error(document_id)
 
@@ -220,7 +220,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		"""
 		Send a payload of messages to the ui
 		"""
-		print("MeetingChatConsumer: send_messages_payload. ")
+		print("DocumentChatConsumer: send_messages_payload. ")
 		await self.send_json(
 			{
 				"messages_payload": "messages_payload",
@@ -235,7 +235,7 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
 		This number is displayed in the room so other users know how many users are connected to the chat.
 		"""
 		# Send a message down to the client
-		print("MeetingChatConsumer: connected_user_count: count: " + str(event["connected_user_count"]))
+		print("DocumentChatConsumer: connected_user_count: count: " + str(event["connected_user_count"]))
 		await self.send_json(
 			{
 				"msg_type": MSG_TYPE_CONNECTED_USER_COUNT,

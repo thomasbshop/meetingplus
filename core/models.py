@@ -12,7 +12,7 @@ class Agenda(models.Model):
 class AgendaItem(models.Model):
     item = models.TextField() 
     complete = models.BooleanField(default=False)
-    agenda = models.ForeignKey(Agenda, on_delete=CASCADE)
+    agenda = models.ForeignKey(Agenda, on_delete=CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.item
@@ -26,7 +26,7 @@ class Minute(models.Model):
 
 class MinuteItem(models.Model):
     item = models.TextField() 
-    minute = models.ForeignKey(Minute, on_delete=CASCADE)
+    minute = models.ForeignKey(Minute, on_delete=CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.item
