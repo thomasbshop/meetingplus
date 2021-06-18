@@ -14,7 +14,18 @@
             Upload Document
           </a>
         </li>
-
+        <li class="nav-item {% if 'ui-icons' in segment %} active {% endif %}">
+          <a class="nav-link" href="{% url 'agenda' %}">
+            <i class="material-icons">bubble_chart</i>
+            <p>Agenda</p>
+          </a>
+        </li>
+        <li class="nav-item {% if 'ui-tables' in segment %} active {% endif %}">
+          <a class="nav-link" href="{% url 'minutes' %}">
+            <i class="material-icons">content_paste</i>
+            <p>Minutes</p>
+          </a>
+        </li>
         <li class="nav-item {% if 'ui-typography' in segment %} active {% endif %}">
           <div class="nav-link" id="showDocumentButton">
             <i class="material-icons">library_books</i>
@@ -34,36 +45,24 @@
             <p>There are no documents.</p>
           {% endif %}
         </li>
-        <li class="nav-item {% if 'ui-icons' in segment %} active {% endif %}">
-          <a class="nav-link" href="/agenda.html">
-            <i class="material-icons">bubble_chart</i>
-            <p>Agenda</p>
+        <li class="nav-item {% if 'ui-notifications' in segment %} active {% endif %}">
+          <a class="nav-link" href="{% url 'room:meeting_chat_room' 1 %}">
+            <i class="material-icons">notifications</i>
+            <p>Chat</p>
           </a>
         </li>
-          <li class="nav-item {% if 'index' in segment %} active {% endif %}">
-            <a class="nav-link" href="/">
-              <i class="material-icons">dashboard</i>
-              <p>Dashboard</p>
-            </a>
-          </li>
-          <li class="nav-item {% if 'ui-tables' in segment %} active {% endif %}">
-            <a class="nav-link" href="{% url 'minutes' %}">
-              <i class="material-icons">content_paste</i>
-              <p>Minutes</p>
-            </a>
-          </li>
-          <li class="nav-item {% if 'ui-notifications' in segment %} active {% endif %}">
-            <a class="nav-link" href="/ui-notifications.html">
-              <i class="material-icons">notifications</i>
-              <p>Notifications</p>
-            </a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link" href="{% url 'logout' %}" >
-              <i class="material-icons">directions_run</i>
-              <p>Logout</p>
-            </a>
-          </li>
+        <li class="nav-item {% if 'index' in segment %} active {% endif %}">
+          <a class="nav-link" href="/">
+            <i class="material-icons">dashboard</i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+        <li class="nav-item ">
+          <a class="nav-link" href="{% url 'logout' %}" >
+            <i class="material-icons">directions_run</i>
+            <p>Logout</p>
+          </a>
+        </li>
 
         {% else %}
 

@@ -1,0 +1,60 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="col">
+  <div>
+      <h2>Minutes</h2>
+      <span class="row">
+        <h4 class="col">Date: {% now "D d M Y" %}</h4>
+        <h4 class="col">Time: {% now "h:i a" %}</h4>
+      </span>
+  </div> 
+  <div class="border">
+    <div style="margin: 2em;">
+      <h3>Agenda</h3>
+      <ol class="list-group list-group-flush">
+          {% for item in agenda_items %} 
+          <li>{{item.item}}</li>
+          {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="border" style="margin-top: 0.5em;">
+    <div style="margin: 2em;">
+      <h3>Minutes</h3>
+      <ol class="list-group list-group-flush">
+          {% for item in minutes_items %} 
+          <li>
+            <p>{{item.item}}</p>
+          </li>
+          {% endfor %}
+          <form action="{% url 'minutes' %}" method = "post">
+            {% csrf_token %}
+            <textarea name="item" rows="4" cols="60" required></textarea>
+            <div><input type="submit" value="Add Item"></div>
+          </form> 
+      </ol>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+  <script>
+    $(document).ready(function() {
+      // Javascript method's body can be found in assets/js/demos.js
+      md.initDashboardPageCharts();
+
+    });
+  </script>
+
+{% endblock javascripts %}

@@ -1,0 +1,48 @@
+
+{% extends "layouts/base.html" %}
+
+{% block title %} Agenda {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<div class="col">
+    <div>
+        <h2>Agenda</h2>
+        <span class="row">
+          <h4 class="col">Date: {% now "D d M Y" %}</h4>
+          <h4 class="col">Time: {% now "h:i a" %}</h4>
+        </span>
+    </div> 
+    <div class="border">
+      <div style="margin: 2em;">
+        <ol class="list-group list-group-flush">
+            {% for item in agenda_items %} 
+            <li>{{item.item}}</li>
+            {% endfor %}
+            
+            <form action="{% url 'agenda' %}" method = "post">
+                {% csrf_token %}
+                <textarea name="item" rows="3" cols="50" required></textarea>
+                <div><input type="submit" value="Add Agenda Item"></div>
+            </form> 
+        </ol>
+      </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+  <script>
+    $(document).ready(function() {
+      // Javascript method's body can be found in assets/js/demos.js
+      md.initDashboardPageCharts();
+
+    });
+  </script>
+
+{% endblock javascripts %}

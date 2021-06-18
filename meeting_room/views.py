@@ -1,12 +1,13 @@
+from django.http.response import HttpResponseRedirect
 from document.models import DocumentChat
 from os import name
 import json
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseForbidden, HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.core.files.storage import FileSystemStorage
 from meetingplus.settings import MEDIA_URL
 from document.forms import DocumentChatForm
+from core.models import AgendaItem, MinuteItem
 from .models import MeetingChatRoom
 
 
@@ -25,18 +26,54 @@ def room(request, meeting_id=1):
             }
         return render(request, 'meeting/document.html', context)
     context = {'meeting': meeting_id, 'meeting_documents': meeting_documents}
-    return render(request, 'minutes.html', context)
+    return render(request, 'meeting/minutes.html', context)
 
 @login_required
 def meeting_chat_room(request, meeting_id=1):
-    # try:
-    #     # retrieve meeting with given id joined by the current user
-        # meeting = MeetingChatRoom(id=meeting_id)
-    # except:
-    #     # user is not invited to the meeting or meeting does not exist
-    #     return HttpResponseForbidden(f"403: Not allowed here.")
-    return render(request, 'meeting/chat_room.html', {'meeting_id': meeting_id})
+    try:
+        # retrieve meeting with given id joined by the current user
+        meeting = MeetingChatRoom(id=meeting_id)
+        meeting = MeetingChatRoom.objects.get(id=meeting_id)
+        meeting_documents = meeting.documents.all()
+    except:
+        # user is not invited to the meeting or meeting does not exist
+        return HttpResponseForbidden(f"403: Not allowed here.")
+    return render(request, 'meeting/chat_room.html', {'meeting_id': meeting_id, 'meeting_documents': meeting_documents})
 
+@login_required()
+def agenda(request):
+    meeting_id = 1
+    meeting = MeetingChatRoom.objects.get(id=meeting_id)
+    meeting_documents = meeting.documents.all()
+    agenda = meeting.agenda
+    # If this is a POST request then process the Form data
+    if request.method == 'POST':
+        new_item = request.POST['item']
+        item = AgendaItem(agenda=agenda, item=new_item)
+        item.save()
+        return HttpResponseRedirect(request.path_info)
+    agenda_items = AgendaItem.objects.filter(agenda=agenda)
+    context = {'agenda_items': agenda_items, 'meeting_documents': meeting_documents}
+    return render(request, 'meeting/agenda.html', context)
+
+@login_required()
+def minutes(request):
+    meeting_id = 1
+    meeting = MeetingChatRoom.objects.get(id=meeting_id)
+    meeting_documents = meeting.documents.all()
+    agenda, minutes = meeting.agenda, meeting.minutes
+    # If this is a POST request then process the Form data
+    if request.method == 'POST':
+        new_item = request.POST['item']
+        item = MinuteItem(minute=minutes, item=new_item)
+        item.save()
+        return HttpResponseRedirect(request.path_info)
+    agenda_items = AgendaItem.objects.filter(agenda=agenda)
+    minutes_items = MinuteItem.objects.filter(minute=minutes)
+    context = {
+        'agenda_items': agenda_items, 'minutes_items': minutes_items, 
+        'meeting_documents': meeting_documents }
+    return render(request, 'meeting/minutes.html', context)
 
 def upload_file(request):
     if request.method == "POST":
